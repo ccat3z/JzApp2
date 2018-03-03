@@ -95,61 +95,6 @@ public class MainActivity extends BaseActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         mLvOptItems = (ListView) findViewById(R.id.opt_items);
         mLayoutBackGround = findViewById(R.id.account_background);
-        mLoadingBack = findViewById(R.id.loading_back);
-        mLoadingBack.setBackgroundResource(getMainTheme().getMainColorID());
-        mLoadingBack.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (loading)
-                    return true;
-                else
-                    return false;
-            }
-        });
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    try {
-                        Animator animator = ViewAnimationUtils.createCircularReveal(
-                                mLoadingBack,
-                                mLoadingBack.getWidth() / 2,
-                                mLoadingBack.getHeight() / 2,
-                                mLoadingBack.getWidth(),
-                                0);
-                        animator.setDuration(500);
-                        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-                        animator.addListener(new Animator.AnimatorListener() {
-                            @Override
-                            public void onAnimationStart(Animator animation) {
-
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                mLoadingBack.setVisibility(View.GONE);
-                            }
-
-                            @Override
-                            public void onAnimationCancel(Animator animation) {
-
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animator animation) {
-
-                            }
-                        });
-                        animator.start();
-                    } catch (Exception e) {
-
-                    }
-                } else
-                    YoYo.with(Techniques.SlideOutUp).playOn(mLoadingBack);
-                loading = false;
-            }
-        }, 2000);
 
         if ((int) SPUtils.get(this, Constant.SP_NAV_IMG_TYPE, 0) == 0) {
             mLayoutBackGround.setBackgroundResource(ThemeUtil.getTheme(this).getMainColorID());
@@ -414,8 +359,6 @@ public class MainActivity extends BaseActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private ListView mLvOptItems;
     private View mLayoutBackGround;
-    private CircleImageView headImg;
-    private View mLoadingBack;
 
     private boolean openOrClose = false;
     private boolean canQuit = false;
@@ -424,8 +367,6 @@ public class MainActivity extends BaseActivity {
     private ReloadCallBack reloadRecordCallBack;
     private ReloadCallBack reloadAnalysisCallBack;
     private OptMenuAdapter optMenuAdapter;
-
-    private boolean loading = true;
 
     public interface ReloadCallBack {
         void reload(boolean needUpdateData);
