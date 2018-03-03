@@ -2,8 +2,6 @@ package com.suda.jzapp;
 
 import android.support.multidex.MultiDexApplication;
 
-import com.iflytek.cloud.SpeechConstant;
-import com.iflytek.cloud.SpeechUtility;
 import com.suda.jzapp.dao.local.account.AccountLocalDao;
 import com.suda.jzapp.dao.local.conf.ConfigLocalDao;
 import com.suda.jzapp.util.LogUtils;
@@ -18,8 +16,6 @@ public class MyApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        //接入讯飞
-        SpeechUtility.createUtility(this, SpeechConstant.APPID + "="+BuildConfig.XUNFEI_APPID);
         initData();
         LogUtils.isDebug = BuildConfig.DEBUG;
     }

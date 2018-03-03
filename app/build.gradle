@@ -13,10 +13,6 @@ android {
     buildToolsVersion '26.0.2'
 
 
-    Properties props = new Properties()
-    props.load(new FileInputStream('/Users/guhaibo/AndroidStudioProjects/as/JzApp/app/signing.properties'))
-
-
     defaultConfig {
         applicationId "com.suda.jzapp"
         minSdkVersion 16
@@ -24,11 +20,6 @@ android {
         versionCode 35
         versionName "1.41"
         buildConfigField "boolean", "RELEASE", "false"
-        buildConfigField "String", "XUNFEI_APPID", props['XUNFEI_APPID']
-        ndk {
-            //APP的build.gradle设置支持的SO库架构
-            abiFilters 'armeabi', 'x86', 'mips'
-        }
     }
 
     packagingOptions {
@@ -108,8 +99,6 @@ dependencies {
     //    compile 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
     //compile files('libs/avoscloud-sns-v3.14.6.jar')
     //compile files('libs/qq.sdk.1.6.1.jar')
-    compile files('libs/Msc.jar')
-    compile files('libs/Sunflower.jar')
 
     //multidex
     compile 'com.android.support:multidex:1.0.1'
