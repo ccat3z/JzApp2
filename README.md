@@ -1,12 +1,5 @@
-# 账单助手
+# 账单助手·改
 
----
-截图展示
+Forked from [ghbhaha/JzApp](https://github.com/ghbhaha/JzApp)
 
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165658.png)
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165700.png)
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165703.png)
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165708.png)
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165715.png)
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165718.png)
-![image](https://raw.githubusercontent.com/ghbhaha/JzApp/other/img/Screenshot_20171008-165723.png)
+更加简洁的记账软件
