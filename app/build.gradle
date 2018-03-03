@@ -32,18 +32,8 @@ android {
         abortOnError false
     }
 
-    signingConfigs {
-        myConfig {
-            storeFile file('/Users/guhaibo/AndroidStudioProjects/as/JzApp/app/suda.jks')
-            storePassword props['KEY_PASSWORD']
-            keyAlias props['KEY_ALIAS']
-            keyPassword props['KEYSTORE_PASSWORD']
-        }
-    }
-
     buildTypes {
         release {
-            signingConfig  signingConfigs.myConfig
             buildConfigField "boolean", "RELEASE", "true"
             multiDexEnabled true
 //            minifyEnabled true
