@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,7 +30,6 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -39,7 +37,6 @@ import com.gxz.PagerSlidingTabStrip;
 import com.soundcloud.android.crop.Crop;
 import com.suda.jzapp.BaseActivity;
 import com.suda.jzapp.R;
-import com.suda.jzapp.manager.SystemManager;
 import com.suda.jzapp.manager.domain.OptDO;
 import com.suda.jzapp.misc.Constant;
 import com.suda.jzapp.service.MyWidgetProvider;
@@ -51,7 +48,6 @@ import com.suda.jzapp.ui.activity.system.SettingsActivity;
 import com.suda.jzapp.ui.adapter.MyFragmentPagerAdapter;
 import com.suda.jzapp.ui.adapter.OptMenuAdapter;
 import com.suda.jzapp.util.ImageUtil;
-import com.suda.jzapp.util.LauncherIconUtil;
 import com.suda.jzapp.util.SPUtils;
 import com.suda.jzapp.util.SnackBarUtil;
 import com.suda.jzapp.util.ThemeUtil;
@@ -86,23 +82,9 @@ public class MainActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO);
         }
-        showYiYan();
         updateWidget();
 
         initWidget();
-    }
-
-    private void showYiYan() {
-        if ((boolean) SPUtils.get(this, true, "yi_yan", true)) {
-            new SystemManager(this).getYiYan(new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    if (msg.what == Constant.MSG_SUCCESS) {
-                        ((TextView) findViewById(R.id.yiyan)).setText(msg.obj.toString());
-                    }
-                }
-            });
-        }
     }
 
     @Override

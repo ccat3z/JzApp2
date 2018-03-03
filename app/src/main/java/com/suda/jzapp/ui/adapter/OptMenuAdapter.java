@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.nineoldandroids.animation.AnimatorSet;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.suda.jzapp.R;
-import com.suda.jzapp.manager.SystemManager;
 import com.suda.jzapp.manager.domain.OptDO;
 import com.suda.jzapp.misc.Constant;
 import com.suda.jzapp.ui.activity.MainActivity;
@@ -30,12 +29,10 @@ import java.util.List;
 public class OptMenuAdapter extends BaseAdapter {
     private Activity context;
     private List<OptDO> optDOs;
-    private SystemManager mSystemManager;
 
     public OptMenuAdapter(List<OptDO> optDOs, Activity context) {
         this.optDOs = optDOs;
         this.context = context;
-        mSystemManager = new SystemManager(context);
     }
 
     @Override
