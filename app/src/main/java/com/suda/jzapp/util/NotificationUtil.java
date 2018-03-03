@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import com.suda.jzapp.R;
 import com.suda.jzapp.ui.activity.MainActivity;
 
 /**

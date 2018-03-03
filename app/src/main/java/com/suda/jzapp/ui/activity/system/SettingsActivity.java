@@ -2,18 +2,11 @@ package com.suda.jzapp.ui.activity.system;
 
 import android.annotation.TargetApi;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
-import android.text.TextUtils;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 import com.suda.jzapp.BaseActivity;
 import com.suda.jzapp.R;
@@ -32,8 +25,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import me.drakeet.materialdialog.MaterialDialog;
 
 public class SettingsActivity extends BaseActivity {
 

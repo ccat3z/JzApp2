@@ -1,6 +1,5 @@
 package com.suda.jzapp.ui.activity.record;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.suda.jzapp.BaseActivity;

@@ -1,7 +1,5 @@
 package com.suda.jzapp.manager.domain;
 
-import java.util.Date;
-
 /**
  * Created by ghbha on 2016/4/10.
  */
