@@ -1,31 +1,23 @@
 package com.suda.jzapp.ui.activity.system;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.suda.jzapp.BaseActivity;
 import com.suda.jzapp.R;
-import com.suda.jzapp.dao.greendao.User;
-import com.suda.jzapp.manager.UserManager;
 import com.suda.jzapp.misc.Constant;
 import com.suda.jzapp.misc.IntentConstant;
 import com.suda.jzapp.ui.activity.MainActivity;
 import com.suda.jzapp.ui.activity.record.CreateOrEditRecordActivity;
 import com.suda.jzapp.ui.activity.record.RecordPieAnalysisActivity;
-import com.suda.jzapp.ui.activity.user.LoginActivity;
 import com.suda.jzapp.util.LogUtils;
 import com.suda.jzapp.util.SPUtils;
 import com.suda.jzapp.util.StatusBarCompat;
@@ -47,38 +39,12 @@ public class GestureLockActivity extends BaseActivity {
         StatusBarCompat.setStatusBarDarkMode(true, this);
 
         mGestureLockViewGroup = (GestureLockViewGroup) findViewById(R.id.id_gestureLockViewGroup);
-        mForget = (TextView) findViewById(R.id.forget_secret);
         isSetting = getIntent().getBooleanExtra(IntentConstant.SETTING_MODE, false);
         mHeadImg = (CircleImageView) findViewById(R.id.profile_image);
 
 
         mTvTip = (TextView) findViewById(R.id.setting_tips);
         mTvTip.setText("请绘制解锁图案");
-
-        new UserManager(this).getMe(new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if (msg.what == Constant.MSG_SUCCESS) {
-                    User user = (User) msg.obj;
-                    Glide.with(GestureLockActivity.this.getApplicationContext()).
-                            load(user.getHeadImage())
-                            .error(R.mipmap.suda).into(mHeadImg);
-                }
-            }
-        });
-
-        mForget.setText(Html.fromHtml("<u>" + "忘记手势密码" + "</u>"));
-        mForget.setVisibility(isSetting ? View.INVISIBLE : View.VISIBLE);
-
-        mForget.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GestureLockActivity.this, LoginActivity.class);
-                intent.putExtra(IntentConstant.FORGET_GESTURE, true);
-                startActivityForResult(intent, REQUEST_CODE_FORGET_GESTURE);
-            }
-        });
 
         if (!isSetting) {
             secret = (String) SPUtils.get(this, Constant.SP_GESTURE, "");
@@ -111,7 +77,6 @@ public class GestureLockActivity extends BaseActivity {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    new UserManager(GestureLockActivity.this).logOut();
                                     enterMain();
                                 }
                             }, 300);
@@ -242,7 +207,7 @@ public class GestureLockActivity extends BaseActivity {
     private boolean isSetting = false;
     private GestureLockViewGroup mGestureLockViewGroup;
     private CircleImageView mHeadImg;
-    private TextView mTvTip, mForget;
+    private TextView mTvTip;
     private String secret = "";
     private int mTryTime = 5;
     private CancellationSignal mCancellationSignal = new CancellationSignal();

@@ -3,7 +3,6 @@ package com.suda.jzapp.ui.activity.system;
 import android.annotation.TargetApi;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,9 +17,7 @@ import android.widget.EditText;
 
 import com.suda.jzapp.BaseActivity;
 import com.suda.jzapp.R;
-import com.suda.jzapp.dao.cloud.avos.pojo.user.MyAVUser;
 import com.suda.jzapp.misc.Constant;
-import com.suda.jzapp.misc.IntentConstant;
 import com.suda.jzapp.util.AlarmUtil;
 import com.suda.jzapp.util.LauncherIconUtil;
 import com.suda.jzapp.util.SPUtils;
@@ -70,9 +67,7 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mSettingsFragment != null)
-            mSettingsFragment.changeGestureCheckStatus();
-        else
+        if (mSettingsFragment == null)
             finish();
     }
 
@@ -83,7 +78,6 @@ public class SettingsActivity extends BaseActivity {
 
         }
 
-        private CheckBoxPreference mGestureLockCheck;
         private CheckBoxPreference mRemindCheck;
         private CheckBoxPreference mImmersiveCheck;
         private CheckBoxPreference mIconCheck;
@@ -96,7 +90,6 @@ public class SettingsActivity extends BaseActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
-            mGestureLockCheck = (CheckBoxPreference) findPreference(GESTURE_LOCK);
             mRemindCheck = (CheckBoxPreference) findPreference(REMIND_SETTING);
             mImmersiveCheck = (CheckBoxPreference) findPreference(IMMERSIVE_STATUS_BAR);
             mIconCheck = (CheckBoxPreference) findPreference(ICON_TYPE);
@@ -105,7 +98,6 @@ public class SettingsActivity extends BaseActivity {
             mCommonCateGory = (MyPreferenceCategory) findPreference("common_settings");
 
             mRemindCheck.setOnPreferenceChangeListener(this);
-            mGestureLockCheck.setOnPreferenceChangeListener(this);
             mIconCheck.setOnPreferenceChangeListener(this);
             mVibratorSettings.setOnPreferenceChangeListener(this);
 
@@ -175,20 +167,7 @@ public class SettingsActivity extends BaseActivity {
 
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if (preference == mGestureLockCheck) {
-                if (mGestureLockCheck.isChecked()) {
-                    SPUtils.put(getActivity(), Constant.SP_GESTURE, "");
-                    mGestureLockCheck.setChecked(false);
-                } else {
-                    if (MyAVUser.getCurrentUser() != null) {
-                        Intent intent = new Intent(getActivity(), GestureLockActivity.class);
-                        intent.putExtra(IntentConstant.SETTING_MODE, true);
-                        startActivity(intent);
-                    } else {
-                        SnackBarUtil.showSnackInfo(getView(), getActivity(), "请先登录账户");
-                    }
-                }
-            } else if (preference == mRemindCheck) {
+            if (preference == mRemindCheck) {
                 if (mRemindCheck.isChecked()) {
                     SPUtils.put(getActivity(), Constant.SP_ALARM_TIME, 0l);
                     mRemindCheck.setChecked(false);
@@ -238,14 +217,6 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
             return false;
-        }
-
-        public void changeGestureCheckStatus() {
-            if (mGestureLockCheck != null) {
-                if (!TextUtils.isEmpty((String) SPUtils.get(getActivity(), Constant.SP_GESTURE, ""))) {
-                    mGestureLockCheck.setChecked(true);
-                }
-            }
         }
     }
 

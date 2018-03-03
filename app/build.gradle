@@ -24,9 +24,6 @@ android {
         versionCode 35
         versionName "1.41"
         buildConfigField "boolean", "RELEASE", "false"
-        buildConfigField "boolean", "USERLINK", "false"
-        buildConfigField "String", "LEANCOULD_APPID", props['LEANCOULD_APPID']
-        buildConfigField "String", "LEANCOULD_APPKEY", props['LEANCOULD_APPKEY']
         buildConfigField "String", "XUNFEI_APPID", props['XUNFEI_APPID']
         ndk {
             //APP的build.gradle设置支持的SO库架构
@@ -85,11 +82,8 @@ dependencies {
     compile 'com.android.support:cardview-v7:26+'
     compile 'com.android.support:design:26+'
     compile 'com.android.support:percent:26+'
-    //leancloud
-    compile 'cn.leancloud.android:avoscloud-sdk:v4.6.1'
-    compile 'cn.leancloud.android:avoscloud-statistics:v4.6.1'
-    //avoscloud-push 为推送与实时聊天需要的包
-    compile('cn.leancloud.android:avoscloud-push:v4.6.1@aar') { transitive = true }
+    //fastjson
+    compile 'com.alibaba:fastjson:1.2.46'
     //GreenDao
     compile 'org.greenrobot:greendao:3.2.2'
     //友盟

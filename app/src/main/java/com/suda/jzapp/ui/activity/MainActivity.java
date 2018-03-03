@@ -19,7 +19,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -34,31 +33,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.gxz.PagerSlidingTabStrip;
 import com.soundcloud.android.crop.Crop;
 import com.suda.jzapp.BaseActivity;
-import com.suda.jzapp.BuildConfig;
 import com.suda.jzapp.R;
-import com.suda.jzapp.dao.cloud.avos.pojo.user.MyAVUser;
-import com.suda.jzapp.dao.greendao.User;
-import com.suda.jzapp.manager.RecordManager;
 import com.suda.jzapp.manager.SystemManager;
-import com.suda.jzapp.manager.UserManager;
 import com.suda.jzapp.manager.domain.OptDO;
 import com.suda.jzapp.misc.Constant;
-import com.suda.jzapp.service.BackupService;
 import com.suda.jzapp.service.MyWidgetProvider;
 import com.suda.jzapp.ui.activity.account.MonthReportActivity;
 import com.suda.jzapp.ui.activity.record.ExportRecordActivity;
 import com.suda.jzapp.ui.activity.system.AboutActivity;
 import com.suda.jzapp.ui.activity.system.EditThemeActivity;
 import com.suda.jzapp.ui.activity.system.SettingsActivity;
-import com.suda.jzapp.ui.activity.user.LoginActivity;
-import com.suda.jzapp.ui.activity.user.UserActivity;
-import com.suda.jzapp.ui.activity.user.UserLinkActivity;
 import com.suda.jzapp.ui.adapter.MyFragmentPagerAdapter;
 import com.suda.jzapp.ui.adapter.OptMenuAdapter;
 import com.suda.jzapp.util.ImageUtil;
@@ -93,7 +82,6 @@ public class MainActivity extends BaseActivity {
             window.setStatusBarColor(Color.TRANSPARENT);
             //  window.setNavigationBarColor(Color.TRANSPARENT);
         }
-        startService(new Intent(this, BackupService.class));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO);
@@ -101,8 +89,6 @@ public class MainActivity extends BaseActivity {
         showYiYan();
         updateWidget();
 
-        userManager = new UserManager(this);
-        recordManager = new RecordManager(this);
         initWidget();
     }
 
@@ -127,7 +113,6 @@ public class MainActivity extends BaseActivity {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer);
         mLvOptItems = (ListView) findViewById(R.id.opt_items);
         mLayoutBackGround = findViewById(R.id.account_background);
-        headImg = (CircleImageView) findViewById(R.id.profile_image);
         mLoadingBack = findViewById(R.id.loading_back);
         mLoadingBack.setBackgroundResource(getMainTheme().getMainColorID());
         mLoadingBack.setOnTouchListener(new View.OnTouchListener() {
@@ -183,25 +168,6 @@ public class MainActivity extends BaseActivity {
                 loading = false;
             }
         }, 2000);
-
-        String userName = userManager.getCurUserName();
-        userNameTv = (TextView) findViewById(R.id.user_tv);
-        userNameTv.setText(TextUtils.isEmpty(userName) ?
-                "登陆/注册" : (userName + recordManager.getRecordDayCount()));
-        if (!TextUtils.isEmpty(userName)) {
-            userManager.getMe(new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    super.handleMessage(msg);
-                    if (msg.what == Constant.MSG_SUCCESS) {
-                        User user = (User) msg.obj;
-                        Glide.with(MainActivity.this.getApplicationContext()).
-                                load(user.getHeadImage()).error(R.mipmap.suda)
-                                .into(headImg);
-                    }
-                }
-            });
-        }
 
         if ((int) SPUtils.get(this, Constant.SP_NAV_IMG_TYPE, 0) == 0) {
             mLayoutBackGround.setBackgroundResource(ThemeUtil.getTheme(this).getMainColorID());
@@ -298,24 +264,6 @@ public class MainActivity extends BaseActivity {
             mLayoutBackGround.setBackgroundResource(ThemeUtil.getTheme(this).getMainColorID());
         }
         mPagerSlidingTabStrip.setBackgroundColor(getColor(this, ThemeUtil.getTheme(this).getMainColorID()));
-        if (MyAVUser.getCurrentUser() != null) {
-            userManager.getMe(new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    super.handleMessage(msg);
-                    if (msg.what == Constant.MSG_SUCCESS) {
-                        User user = (User) msg.obj;
-                        Glide.with(MainActivity.this.getApplicationContext()).
-                                load(user.getHeadImage()).error(R.mipmap.suda)
-                                .into(headImg);
-                    }
-                }
-            });
-        } else {
-            Glide.with(MainActivity.this.getApplicationContext()).
-                    load(LauncherIconUtil.getLauncherIcon(this))
-                    .into(headImg);
-        }
     }
 
     private void setDrawerLayout() {
@@ -340,13 +288,10 @@ public class MainActivity extends BaseActivity {
         //初始化菜单
         List<OptDO> optDOs = new ArrayList<>();
 
-        if (BuildConfig.USERLINK)
-            optDOs.add(new OptDO(UserLinkActivity.class, 0, R.drawable.ic_drawer_friends, "关联账户"));
         optDOs.add(new OptDO(MonthReportActivity.class, 1, R.drawable.ic_drawer_guide, "月报"));
         optDOs.add(new OptDO(ExportRecordActivity.class, 2, R.drawable.ic_drawer_export, "数据导出"));
         optDOs.add(new OptDO(SettingsActivity.class, 3, R.drawable.ic_drawer_settings, "设置"));
         optDOs.add(new OptDO(EditThemeActivity.class, 4, R.drawable.ic_color_lens_black_24dp, "主题切换"));
-        optDOs.add(new OptDO(null, 5, R.drawable.ic_drawer_check_update, "检查更新"));
         optDOs.add(new OptDO(AboutActivity.class, 6, R.drawable.ic_drawer_about, "关于"));
         optDOs.add(new OptDO(null, 7, R.drawable.ic_drawer_exit, "退出"));
         optMenuAdapter = new OptMenuAdapter(optDOs, this);
@@ -364,7 +309,6 @@ public class MainActivity extends BaseActivity {
             }
 
             if (canQuit) {
-                userManager.setUserLink(null);
                 this.finish();
             } else {
                 SnackBarUtil.showSnackInfo(mPagerSlidingTabStrip, this, "再按一次退出");
@@ -396,22 +340,12 @@ public class MainActivity extends BaseActivity {
                 reloadRecordCallBack.reload(true);
                 reloadAccountCallBack.reload(true);
                 reloadAnalysisCallBack.reload(true);
-                userNameTv.setText(TextUtils.isEmpty(userManager.getCurUserName()) ?
-                        "登陆/注册" : (userManager.getCurUserName() + recordManager.getRecordDayCount()));
             }
             if (requestCode == REQUEST_EDIT_THEME) {
                 reloadRecordCallBack.reload(false);
                 reloadAccountCallBack.reload(false);
                 optMenuAdapter.notifyDataSetChanged();
                 reloadAnalysisCallBack.reload(false);
-            }
-            if (requestCode == REQUEST_LOGIN) {
-                updateWidget();
-                reloadRecordCallBack.reload(true);
-                reloadAccountCallBack.reload(true);
-                reloadAnalysisCallBack.reload(true);
-                userNameTv.setText(TextUtils.isEmpty(userManager.getCurUserName()) ?
-                        "登陆/注册" : (userManager.getCurUserName() + new RecordManager(MainActivity.this).getRecordDayCount()));
             }
             if (requestCode == REQUEST_ACCOUNT_FLOW) {
                 updateWidget();
@@ -450,16 +384,6 @@ public class MainActivity extends BaseActivity {
         reloadRecordCallBack.reload(true);
         reloadAccountCallBack.reload(true);
         reloadAnalysisCallBack.reload(true);
-    }
-
-    public void login(View view) {
-        if (MyAVUser.getCurrentUser() == null) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivityForResult(intent, REQUEST_LOGIN);
-        } else {
-            Intent intent = new Intent(this, UserActivity.class);
-            startActivityForResult(intent, REQUEST_LOGIN);
-        }
     }
 
     private void updateWidget() {
@@ -508,15 +432,11 @@ public class MainActivity extends BaseActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private ListView mLvOptItems;
     private View mLayoutBackGround;
-    private TextView userNameTv;
     private CircleImageView headImg;
     private View mLoadingBack;
 
     private boolean openOrClose = false;
     private boolean canQuit = false;
-
-    private UserManager userManager;
-    private RecordManager recordManager;
 
     private ReloadCallBack reloadAccountCallBack;
     private ReloadCallBack reloadRecordCallBack;
@@ -532,7 +452,6 @@ public class MainActivity extends BaseActivity {
     public final static int REQUEST_ACCOUNT = 100;
     public final static int REQUEST_RECORD = 101;
     public final static int REQUEST_EDIT_THEME = 102;
-    public final static int REQUEST_LOGIN = 103;
     public final static int REQUEST_ACCOUNT_FLOW = 104;
     public final static int REQUEST_ACCOUNT_TRANSFORM = 105;
     public final static int REQUEST_SELECT_IMAGE = 106;

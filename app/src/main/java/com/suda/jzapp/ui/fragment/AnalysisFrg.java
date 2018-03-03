@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.TextView;
 
-import com.avos.avoscloud.AVAnalytics;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -321,13 +320,11 @@ public class AnalysisFrg extends Fragment implements MainActivity.ReloadCallBack
 
         backGround.setBackground(new ColorDrawable(mainColor));
         resetTipRound();
-        AVAnalytics.onFragmentStart("AnalysisFrg");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        AVAnalytics.onFragmentEnd("AnalysisFrg");
     }
 
     private void resetTipRound() {

@@ -32,9 +32,6 @@
 -dontwarn com.google.**
 -keep class com.google.** { *;}
 
--dontwarn com.avos.**
--keep class com.avos.** { *;}
-
 -keep public class android.net.http.SslError
 -keep public class android.webkit.WebViewClient
 

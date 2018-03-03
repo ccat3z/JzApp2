@@ -4,12 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
-import com.avos.avoscloud.AVException;
-import com.suda.jzapp.dao.cloud.avos.pojo.user.MyAVUser;
 import com.suda.jzapp.misc.Constant;
-import com.suda.jzapp.util.LogUtils;
-import com.suda.jzapp.util.NetworkUtil;
-import com.suda.jzapp.util.SPUtils;
 
 /**
  * Created by Suda on 2015/11/16.
@@ -40,10 +35,6 @@ public abstract class BaseManager {
         handler.sendMessage(message);
     }
 
-    protected void getAvEx(AVException avEx) {
-        LogUtils.getAvEx(avEx, _context);
-    }
-
     protected Context _context;
 
     protected interface Callback {
@@ -51,9 +42,7 @@ public abstract class BaseManager {
     }
 
     protected boolean canSync() {
-        return MyAVUser.getCurrentUser() != null &&
-                ((boolean) SPUtils.get(_context, true, Constant.SP_SYNC_ONLY_WIFI, false) ?
-                        NetworkUtil.checkWifi(_context) : NetworkUtil.checkNetwork(_context));
+        return false;
     }
 
     protected static final int PAGE_SIZE = 1000;

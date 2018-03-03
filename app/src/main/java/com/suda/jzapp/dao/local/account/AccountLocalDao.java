@@ -3,7 +3,6 @@ package com.suda.jzapp.dao.local.account;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.suda.jzapp.dao.greendao.Account;
 import com.suda.jzapp.dao.greendao.AccountDao;
 import com.suda.jzapp.dao.greendao.AccountType;
@@ -12,10 +11,8 @@ import com.suda.jzapp.dao.greendao.Budget;
 import com.suda.jzapp.dao.greendao.BudgetDao;
 import com.suda.jzapp.dao.local.BaseLocalDao;
 import com.suda.jzapp.manager.domain.AccountDetailDO;
-import com.suda.jzapp.manager.domain.AccountIndexDO;
 import com.suda.jzapp.util.MoneyUtil;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,20 +20,6 @@ import java.util.List;
  * Created by ghbha on 2016/2/15.
  */
 public class AccountLocalDao extends BaseLocalDao {
-
-
-    public void createOrUpdateAccount(Context context, Account account) {
-        AccountDao accountDao = getDaoSession(context).getAccountDao();
-        Account accountOld = getSingleData(accountDao.queryBuilder().whereOr(AccountDao.Properties.AccountID.eq(account.getAccountID())
-                , AccountDao.Properties.ObjectID.eq(account.getObjectID())).build().list());
-        if (accountOld != null) {
-            account.setId(accountOld.getId());
-            updateAccount(context, account);
-        } else {
-            createNewAccount(account, context);
-        }
-    }
-
     public double getBudget(Context context) {
         BudgetDao budgetDao = getDaoSession(context).getBudgetDao();
         if (getSingleData(budgetDao.queryBuilder().list()) == null) {
@@ -196,12 +179,6 @@ public class AccountLocalDao extends BaseLocalDao {
         return accountTypeDao.queryBuilder().build().list();
     }
 
-    public List<Account> getNotBackData(Context context) {
-        AccountDao accountDao = getDaoSession(context).getAccountDao();
-        return accountDao.queryBuilder().where(AccountDao.Properties.SyncStatus.eq(false))
-                .list();
-    }
-
     public void updateAccountIndex(Context context, List<AccountDetailDO> accountDetailDOs) {
         AccountDao accountDao = getDaoSession(context).getAccountDao();
         int i = 0;
@@ -214,38 +191,6 @@ public class AccountLocalDao extends BaseLocalDao {
             i++;
         }
     }
-
-    public void updateAccountIndexByAccountIndex(Context context, List<AccountIndexDO> accountIndexDOs) {
-        AccountDao accountDao = getDaoSession(context).getAccountDao();
-        for (AccountIndexDO accountIndexDO : accountIndexDOs) {
-            Account account = getSingleData(accountDao.queryBuilder().where(AccountDao.Properties.AccountID.eq(accountIndexDO.getAccountID())).list());
-            if (account == null)
-                continue;
-            account.setIndex(accountIndexDO.getIndex());
-            accountDao.update(account);
-        }
-    }
-
-    public String getAccountIndexInfo(Context context) {
-        AccountDao accountDao = getDaoSession(context).getAccountDao();
-        List<Account> list = accountDao.queryBuilder().
-                where(AccountDao.Properties.IsDel.eq(false))
-                .orderAsc(AccountDao.Properties.Index)
-                .build()
-                .list();
-        List<AccountIndexDO> list1 = new ArrayList<>();
-        int i = 0;
-        for (Account account : list) {
-            AccountIndexDO accountIndexDO = new AccountIndexDO();
-            accountIndexDO.setAccountID(account.getAccountID());
-            accountIndexDO.setIndex(i);
-            i++;
-            list1.add(accountIndexDO);
-        }
-
-        return JSON.toJSONString(list1);
-    }
-
     public int getAccountSize(Context context) {
         AccountDao accountDao = getDaoSession(context).getAccountDao();
         return accountDao.queryBuilder().where(AccountDao.Properties.IsDel.eq(false)).list().size();

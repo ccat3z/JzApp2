@@ -2,25 +2,13 @@ package com.suda.jzapp.manager;
 
 import android.content.Context;
 import android.os.Handler;
-import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.avos.avoscloud.AVException;
-import com.avos.avoscloud.AVObject;
-import com.avos.avoscloud.AVQuery;
-import com.avos.avoscloud.FindCallback;
-import com.avos.avoscloud.SaveCallback;
-import com.suda.jzapp.dao.cloud.avos.pojo.account.AVAccount;
-import com.suda.jzapp.dao.cloud.avos.pojo.account.AVAccountIndex;
-import com.suda.jzapp.dao.cloud.avos.pojo.user.MyAVUser;
 import com.suda.jzapp.dao.greendao.Account;
 import com.suda.jzapp.dao.greendao.AccountType;
-import com.suda.jzapp.dao.greendao.Config;
 import com.suda.jzapp.dao.local.account.AccountLocalDao;
 import com.suda.jzapp.dao.local.conf.ConfigLocalDao;
 import com.suda.jzapp.dao.local.record.RecordLocalDAO;
 import com.suda.jzapp.manager.domain.AccountDetailDO;
-import com.suda.jzapp.manager.domain.AccountIndexDO;
 import com.suda.jzapp.misc.Constant;
 import com.suda.jzapp.util.DataConvertUtil;
 import com.suda.jzapp.util.MoneyUtil;
@@ -145,27 +133,9 @@ public class AccountManager extends BaseManager {
         account.setSyncStatus(true);
         account.setIsDel(false);
         account.setAccountColor(accountColor + "");
-        if (canSync()) {
-            AVAccount avAccount = DataConvertUtil.convertAccount2AVAccount(account);
-            avAccount.setAccountIsDel(false);
-            avAccount.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(AVException e) {
-                    if (e == null) {
-                        accountLocalDao.createNewAccount(account, _context);
-                    } else {
-                        account.setSyncStatus(false);
-                        accountLocalDao.createNewAccount(account, _context);
-                        getAvEx(e);
-                    }
-                    sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                }
-            });
-        } else {
-            account.setSyncStatus(false);
-            accountLocalDao.createNewAccount(account, _context);
-            sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-        }
+        account.setSyncStatus(false);
+        accountLocalDao.createNewAccount(account, _context);
+        sendEmptyMessage(handler, Constant.MSG_SUCCESS);
     }
 
     /**
@@ -283,145 +253,8 @@ public class AccountManager extends BaseManager {
      */
     private void editAccount(final int editType, final long accountID, final String remark, final int typeID, final double money, final String accountName,
                              final Callback callback, final Handler handler) {
-        if (canSync()) {
-            Account account = accountLocalDao.getAccountByID(accountID, _context);
-            if (account.getIsDel()) {
-                sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                return;
-            }
-            if (!TextUtils.isEmpty(account.getObjectID())) {
-                AVAccount avAccount = DataConvertUtil.convertAccount2AVAccount(account);
-                avAccount.setAccountIsDel(account.getIsDel());
-                if (editType == EDIT_TYPE_DEL) {
-                    avAccount.setAccountIsDel(true);
-                } else if (editType == EDIT_TYPE_ACCOUNT_TYPE) {
-                    avAccount.setAccountTypeId(typeID);
-                } else if (editType == EDIT_TYPE_ACCOUNT_MONEY) {
-                    avAccount.setAccountMoney(money);
-                } else if (editType == EDIT_TYPE_ACCOUNT_REMARK) {
-                    avAccount.setAccountRemark(remark);
-                } else if (editType == EDIT_TYPE_ACCOUNT_NAME) {
-                    avAccount.setAccountName(accountName);
-                } else if (editType == EDIT_TYPE_ACCOUNT_COLOR) {
-                    avAccount.setAccountColor(remark);
-                }
-                avAccount.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(AVException e) {
-                        getAvEx(e);
-                        if (e == null) {
-                            callback.doSth(true, null);
-                        } else {
-                            callback.doSth(false, null);
-                        }
-                        sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                    }
-                });
-                return;
-            }
-
-            AVQuery<AVAccount> query = AVObject.getQuery(AVAccount.class);
-            query.whereEqualTo(AVAccount.ACCOUNT_ID, accountID);
-            query.whereEqualTo(AVAccount.USER, MyAVUser.getCurrentUser());
-            query.findInBackground(new FindCallback<AVAccount>() {
-                @Override
-                public void done(List<AVAccount> list, AVException e) {
-                    if (e == null) {
-                        AVAccount avAccount = null;
-                        if (list.size() > 0) {
-                            avAccount = list.get(0);
-                        } else {
-                            Account account = accountLocalDao.getAccountByID(accountID, _context);
-                            avAccount = DataConvertUtil.convertAccount2AVAccount(account);
-                        }
-                        if (editType == EDIT_TYPE_DEL) {
-                            avAccount.setAccountIsDel(true);
-                        } else if (editType == EDIT_TYPE_ACCOUNT_TYPE) {
-                            avAccount.setAccountTypeId(typeID);
-                        } else if (editType == EDIT_TYPE_ACCOUNT_MONEY) {
-                            avAccount.setAccountMoney(money);
-                        } else if (editType == EDIT_TYPE_ACCOUNT_REMARK) {
-                            avAccount.setAccountRemark(remark);
-                        } else if (editType == EDIT_TYPE_ACCOUNT_NAME) {
-                            avAccount.setAccountName(accountName);
-                        } else if (editType == EDIT_TYPE_ACCOUNT_COLOR) {
-                            avAccount.setAccountColor(remark);
-                        }
-                        final String objId = avAccount.getObjectId();
-                        avAccount.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(AVException e) {
-                                if (e == null) {
-                                    callback.doSth(true, objId);
-                                } else {
-                                    getAvEx(e);
-                                    callback.doSth(false, objId);
-                                }
-                                sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                            }
-                        });
-                    } else {
-                        getAvEx(e);
-                        callback.doSth(false, null);
-                        sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                    }
-                }
-            });
-        } else {
-            callback.doSth(false, null);
-            sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-        }
-    }
-
-    /**
-     * 从云端获取全部账户信息初始化数据
-     */
-    public void initAccountData() throws AVException {
-        AVQuery<AVAccount> query = AVObject.getQuery(AVAccount.class);
-        query.limit(1000);
-        query.whereEqualTo(AVAccount.USER, MyAVUser.getCurrentUser());
-        List<AVAccount> list = query.find();
-        if (list.size() > 0) {
-            int i = 0;
-            for (AVAccount avAccount : list) {
-                Account account = new Account();
-                account.setObjectID(avAccount.getObjectId());
-                account.setAccountID(avAccount.getAccountId());
-                account.setAccountTypeID(avAccount.getAccountTypeId());
-                account.setAccountMoney(recordLocalDAO.getAccountMoneyByRecord(_context, avAccount.getAccountId()));
-                account.setAccountRemark(avAccount.getAccountRemark());
-                account.setIsDel(avAccount.isAccountDel());
-                account.setAccountColor(avAccount.getAccountColor());
-                account.setAccountName(avAccount.getAccountName());
-                account.setSyncStatus(true);
-                account.setIndex(i);
-                i++;
-                Account oldAccount = accountLocalDao.getAccountByID(account.getAccountID(), _context);
-                if (oldAccount == null)
-                    accountLocalDao.createNewAccount(account, _context);
-            }
-        }
-        initAccountIndex();
-    }
-
-    /**
-     * 初始化账户索引数据
-     */
-    public void initAccountIndex() throws AVException {
-        AVQuery<AVAccountIndex> query = AVObject.getQuery(AVAccountIndex.class);
-        query.whereEqualTo(AVAccountIndex.USER, MyAVUser.getCurrentUser());
-        List<AVAccountIndex> list = query.find();
-        if (list.size() > 0) {
-            AVAccountIndex avAccountIndex = list.get(0);
-            String data = avAccountIndex.getData();
-            List<AccountIndexDO> accountIndexDOs = JSON.parseArray(data, AccountIndexDO.class);
-            Config config = new Config();
-            config.setObjectID(avAccountIndex.getObjectId());
-            config.setKey(ACCOUNT_INDEX_UPDATE);
-            config.setBooleanValue(true);
-            configLocalDao.updateConfig(config, _context);
-            accountLocalDao.updateAccountIndexByAccountIndex(_context, accountIndexDOs);
-        }
+        callback.doSth(false, null);
+        sendEmptyMessage(handler, Constant.MSG_SUCCESS);
     }
 
     /**
@@ -433,80 +266,6 @@ public class AccountManager extends BaseManager {
     public void updateAccountIndex(final Handler handler, List<AccountDetailDO> list) {
         if (list != null) {
             accountLocalDao.updateAccountIndex(_context, list);
-        }
-        if (canSync()) {
-            final Config config = configLocalDao.getConfigByKey(ACCOUNT_INDEX_UPDATE, _context);
-            if (config != null && config.getBooleanValue() && list == null) {
-                sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                return;
-            }
-            if (config != null && !TextUtils.isEmpty(config.getObjectID())) {
-                AVAccountIndex avAccountIndex = new AVAccountIndex();
-                avAccountIndex.setObjectId(config.getObjectID());
-                avAccountIndex.setData(accountLocalDao.getAccountIndexInfo(_context));
-                avAccountIndex.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(AVException e) {
-                        getAvEx(e);
-                        if (e == null) {
-                            config.setBooleanValue(true);
-                        } else {
-                            config.setBooleanValue(false);
-                        }
-                        configLocalDao.updateConfig(config, _context);
-                        sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                    }
-                });
-                return;
-            }
-
-            AVQuery<AVAccountIndex> query = AVObject.getQuery(AVAccountIndex.class);
-            query.whereEqualTo(AVAccountIndex.USER, MyAVUser.getCurrentUser());
-            query.findInBackground(new FindCallback<AVAccountIndex>() {
-                @Override
-                public void done(List<AVAccountIndex> list, AVException e) {
-                    getAvEx(e);
-                    if (e != null) {
-                        sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                        Config config = configLocalDao.getConfigByKey(ACCOUNT_INDEX_UPDATE, _context);
-                        if (config == null) {
-                            config = new Config();
-                        }
-                        config.setKey(ACCOUNT_INDEX_UPDATE);
-                        config.setBooleanValue(false);
-                        configLocalDao.updateConfig(config, _context);
-                    } else {
-                        AVAccountIndex avAccountIndex = null;
-                        if (list.size() > 0) {
-                            avAccountIndex = list.get(0);
-                        } else {
-                            avAccountIndex = new AVAccountIndex();
-                        }
-                        final String objId = avAccountIndex.getObjectId();
-                        avAccountIndex.setUser(MyAVUser.getCurrentUser());
-                        avAccountIndex.setData(accountLocalDao.getAccountIndexInfo(_context));
-                        avAccountIndex.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(AVException e) {
-                                getAvEx(e);
-                                Config config = configLocalDao.getConfigByKey(ACCOUNT_INDEX_UPDATE, _context);
-                                if (config == null) {
-                                    config = new Config();
-                                }
-                                config.setObjectID(objId);
-                                config.setKey(ACCOUNT_INDEX_UPDATE);
-                                if (e == null) {
-                                    config.setBooleanValue(true);
-                                } else {
-                                    config.setBooleanValue(false);
-                                }
-                                configLocalDao.updateConfig(config, _context);
-                                sendEmptyMessage(handler, Constant.MSG_SUCCESS);
-                            }
-                        });
-                    }
-                }
-            });
         }
     }
 

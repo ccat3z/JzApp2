@@ -2,14 +2,12 @@ package com.suda.jzapp.dao.local.record;
 
 import android.content.Context;
 
-import com.alibaba.fastjson.JSON;
 import com.suda.jzapp.dao.greendao.RecordType;
 import com.suda.jzapp.dao.greendao.RecordTypeDao;
 import com.suda.jzapp.dao.local.BaseLocalDao;
 import com.suda.jzapp.manager.domain.RecordTypeIndexDO;
 import com.suda.jzapp.misc.Constant;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -141,35 +139,5 @@ public class RecordTypeLocalDao extends BaseLocalDao {
     public void updateRecordType(Context context, RecordType recordType) {
         RecordTypeDao recordTypeDao = getDaoSession(context).getRecordTypeDao();
         recordTypeDao.update(recordType);
-    }
-
-    public String getRecordTypeIndexInfo(Context context) {
-        RecordTypeDao recordTypeDao = getDaoSession(context).getRecordTypeDao();
-        List<RecordType> list = recordTypeDao.queryBuilder().
-                where(RecordTypeDao.Properties.IsDel.eq(false))
-                .whereOr(RecordTypeDao.Properties.RecordType.eq(Constant.RecordType.SHOURU.getId()),
-                        RecordTypeDao.Properties.RecordType.eq(Constant.RecordType.AA_SHOURU.getId()),
-                        RecordTypeDao.Properties.RecordType.eq(Constant.RecordType.ZUICHU.getId()),
-                        RecordTypeDao.Properties.RecordType.eq(Constant.RecordType.AA_ZHICHU.getId())
-                )
-                .orderAsc(RecordTypeDao.Properties.Index)
-                .build()
-                .list();
-        List<RecordTypeIndexDO> list1 = new ArrayList<>();
-        for (RecordType recordType : list) {
-            RecordTypeIndexDO recordTypeIndexDO = new RecordTypeIndexDO();
-            recordTypeIndexDO.setRecordTypeID(recordType.getRecordTypeID());
-            recordTypeIndexDO.setIndex(recordType.getIndex());
-            list1.add(recordTypeIndexDO);
-        }
-
-        return JSON.toJSONString(list1);
-    }
-
-    public List<RecordType> getNotBackData(Context context) {
-        RecordTypeDao recordTypeDao = getDaoSession(context).getRecordTypeDao();
-        return recordTypeDao.queryBuilder().where(RecordTypeDao.Properties.SyncStatus.eq(false))
-                .where(RecordTypeDao.Properties.SysType.eq(false))
-                .list();
     }
 }

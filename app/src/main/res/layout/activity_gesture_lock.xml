@@ -42,15 +42,4 @@
         android:text="请绘制解锁图案"
         android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/forget_secret"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="30dp"
-        android:gravity="center"
-        android:text="忘记手势密码"
-        android:textSize="16sp" />
-
 </RelativeLayout>

@@ -2,13 +2,10 @@ package com.suda.jzapp;
 
 import android.support.multidex.MultiDexApplication;
 
-import com.avos.avoscloud.AVAnalytics;
-import com.avos.avoscloud.AVOSCloud;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechUtility;
 import com.suda.jzapp.dao.local.account.AccountLocalDao;
 import com.suda.jzapp.dao.local.conf.ConfigLocalDao;
-import com.suda.jzapp.util.LoadAVOSLib;
 import com.suda.jzapp.util.LogUtils;
 import com.suda.jzapp.util.SPUtils;
 
@@ -23,11 +20,6 @@ public class MyApplication extends MultiDexApplication {
 
         //接入讯飞
         SpeechUtility.createUtility(this, SpeechConstant.APPID + "="+BuildConfig.XUNFEI_APPID);
-        //注册AvOs模块
-        AVOSCloud.initialize(this, BuildConfig.LEANCOULD_APPID, BuildConfig.LEANCOULD_APPKEY);
-        LoadAVOSLib.LoadLib();
-        AVAnalytics.enableCrashReport(this, true);
-        //AVIMClient.setOfflineMessagePush(true);
         initData();
         LogUtils.isDebug = BuildConfig.DEBUG;
     }

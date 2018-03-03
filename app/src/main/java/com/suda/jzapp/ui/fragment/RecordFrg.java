@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +20,6 @@ import android.widget.TextView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.avos.avoscloud.AVAnalytics;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.SpeechConstant;
@@ -30,11 +28,9 @@ import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
 import com.melnykov.fab.FloatingActionButton;
 import com.suda.jzapp.R;
-import com.suda.jzapp.dao.cloud.avos.pojo.user.MyAVUser;
 import com.suda.jzapp.dao.greendao.Record;
 import com.suda.jzapp.dao.local.account.AccountLocalDao;
 import com.suda.jzapp.manager.RecordManager;
-import com.suda.jzapp.manager.SyncManager;
 import com.suda.jzapp.manager.domain.RecordDetailDO;
 import com.suda.jzapp.manager.domain.VoiceDo;
 import com.suda.jzapp.misc.Constant;
@@ -65,7 +61,6 @@ public class RecordFrg extends Fragment implements MainActivity.ReloadCallBack {
         accountLocalDao = new AccountLocalDao();
         mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         recordManager = new RecordManager(getActivity());
-        syncManager = new SyncManager(getActivity());
         mInitListener = new InitListener() {
             @Override
             public void onInit(int code) {
@@ -159,30 +154,6 @@ public class RecordFrg extends Fragment implements MainActivity.ReloadCallBack {
         mRecordAdapter = new RecordAdapter(getActivity(), recordDetailDOs, this);
         recordLv.setAdapter(mRecordAdapter);
         recordLv.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        mForceSyncSrl = (SwipeRefreshLayout) view.findViewById(R.id.force_sync);
-        mForceSyncSrl.setColorSchemeResources(android.R.color.holo_blue_light,
-                android.R.color.holo_red_light, android.R.color.holo_orange_light, android.R.color.holo_green_light);
-        mForceSyncSrl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                syncManager.forceSync(new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        super.handleMessage(msg);
-                        mForceSyncSrl.setRefreshing(false);
-                        if (msg.what == Constant.MSG_SUCCESS) {
-                            if (getActivity() != null)
-                                ((MainActivity) getActivity()).refreshAll();
-                            SnackBarUtil.showSnackInfo(backGround, getActivity(), "同步完成");
-                        } else if (msg.what == Constant.MSG_ERROR) {
-                            SnackBarUtil.showSnackInfo(backGround, getActivity(), "同步失败，请检查网络");
-                        } else if (msg.what == Constant.MSG_SHORT) {
-                            SnackBarUtil.showSnackInfo(backGround, getActivity(), "手速太快了哦，待会再同步吧~");
-                        }
-                    }
-                });
-            }
-        });
 
         //resetFoot();
 
@@ -221,14 +192,12 @@ public class RecordFrg extends Fragment implements MainActivity.ReloadCallBack {
         backGround.setBackground(new ColorDrawable(mainColor));
         nullTipTv.setTextColor(mainColor);
         footTv.setTextColor(mainColor);
-        AVAnalytics.onFragmentStart("RecordFrg");
         //resetFoot();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        AVAnalytics.onFragmentEnd("RecordFrg");
     }
 
     public void resetFoot() {
@@ -237,16 +206,7 @@ public class RecordFrg extends Fragment implements MainActivity.ReloadCallBack {
         footTv.setOnClickListener(null);
         nullTipTv.setVisibility(recordDetailDOs.size() > 0 ? View.GONE : View.VISIBLE);
         DateFormat format1 = new SimpleDateFormat("yyyy年MM月dd日");
-        if (MyAVUser.getCurrentUser() != null) {
-
-            // foot.setVisibility(View.VISIBLE);
-            Date date = MyAVUser.getCurrentUser().getCreatedAt();
-            footTv.setText(format1.format(date) + "\n您开启了记账旅程");
-        } else {
-            // foot.setVisibility(View.GONE);
-            footTv.setText(format1.format(new Date(System.currentTimeMillis())) + "\n您开启了记账旅程");
-        }
-
+        footTv.setText(format1.format(new Date(System.currentTimeMillis())) + "\n您开启了记账旅程");
     }
 
     @Override
@@ -347,14 +307,12 @@ public class RecordFrg extends Fragment implements MainActivity.ReloadCallBack {
     private int mainDarkColor;
     private FloatingActionButton mAddRecordBt;
     private RecordManager recordManager;
-    private SyncManager syncManager;
     private RecordAdapter mRecordAdapter;
     private List<RecordDetailDO> recordDetailDOs;
     private int curPage = 1;
     private boolean isRefresh = true;
     private View foot;
     private TextView nullTipTv;
-    private SwipeRefreshLayout mForceSyncSrl;
 
     private final String TAG = "SPEECH";
     private Vibrator mVibrator;
